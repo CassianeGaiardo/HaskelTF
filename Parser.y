@@ -24,6 +24,11 @@ import Lexer
     ident       { TokenIdent $$ }
     ':'         { TokenColon }
     "->"        { TokenArrow }
+    ','         { TokenV }
+    '{'         { TokenLTupla }
+    '}'         { TokenRTupla }
+    fst         { TokenFst }
+    snd         { TokenSnd }
     '+'         { TokenPlus }
     '*'         { TokenTimes }
     "&&"        { TokenAnd }
@@ -45,17 +50,20 @@ Exp
       | Exp "&&" Exp            { And $1 $3 }
       | Exp "||" Exp            { Or $1 $3 }
       | '(' Exp ')'             { Paren $2 }
+      | '(' Exp ',' Exp ')'     { Tuple $2 $4 }
       | if Exp then Exp else Exp { If $2 $4 $6 }
-      | '\\' ident ':' Type "->" Exp
-                                { Lam $2 $4 $6 }
+      | '\\' ident ':' Type "->" Exp { Lam $2 $4 $6 }
+      | '{' Exp ',' Exp '}'     { Tuple $2 $4 }
+      | fst Exp                 { Fst $2 }
+      | snd Exp                 { Snd $2 }
 
       -- aplicação
       | Exp Exp                 { App $1 $2 }
 
-
 Type
       : TBool                   { TBool }
       | TNum                    { TNum }
+      | '(' Type ',' Type ')'   { TTuple $2 $4 }
       | Type "->" Type          { TFun $1 $3 }
 
 

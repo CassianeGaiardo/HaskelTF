@@ -13,6 +13,11 @@ data Token
     | TokenColon
     | TokenArrow
     | TokenPlus
+    | TokenV
+    | TokenLTupla
+    | TokenRTupla
+    | TokenFst
+    | TokenSnd
     | TokenTimes
     | TokenAnd
     | TokenOr
@@ -31,7 +36,10 @@ data Expr = Num Int
           | And Expr Expr 
           | Or Expr Expr 
           | Paren Expr 
-          | If Expr Expr Expr 
+          | If Expr Expr Expr
+          | Tuple Expr Expr
+          | Fst Expr
+          | Snd Expr  
           | Var String
           | Lam String Ty Expr 
           | App Expr Expr 
@@ -39,7 +47,9 @@ data Expr = Num Int
 
 data Ty = TNum 
         | TBool 
-        | TFun Ty Ty 
+        | TFun Ty Ty
+        | TTuple Ty Ty
+
         deriving (Show, Eq) 
 
 lexer :: String -> [Token]
@@ -52,7 +62,10 @@ lexer ('&':'&':cs) = TokenAnd : lexer cs
 lexer ('|':'|':cs) = TokenOr : lexer cs
 lexer (':':cs) = TokenColon : lexer cs
 lexer ('\\':cs) = TokenLambda : lexer cs
+lexer ('{':cs) = TokenLTupla : lexer cs
+lexer ('}':cs) = TokenRTupla : lexer cs
 lexer ('-':'>':cs) = TokenArrow : lexer cs
+lexer (',':cs) = TokenV : lexer cs
 lexer (c:cs) | isSpace c = lexer cs 
              | isDigit c = lexNum (c:cs)
              | isAlpha c = lexKw (c:cs)
@@ -68,6 +81,8 @@ lexKw cs = case span isAlpha cs of
     ("then", rest)  -> TokenThen : lexer rest
     ("else", rest)  -> TokenElse : lexer rest
  --   ("lambda", rest)-> TokenLambda : lexer rest
+    ("fst", rest)   -> TokenFst : lexer rest
+    ("snd", rest)   -> TokenSnd : lexer rest
     ("Bool", rest)  -> TokenTBool : lexer rest
     ("Num", rest)   -> TokenTNum : lexer rest
     (idn, rest)     -> TokenIdent idn : lexer rest

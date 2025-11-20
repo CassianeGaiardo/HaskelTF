@@ -7,7 +7,8 @@ isValue :: Expr -> Bool
 isValue BTrue  = True 
 isValue BFalse = True 
 isValue (Num _) = True 
-isValue (Lam _ _ _) = True 
+isValue (Lam _ _ _) = True
+isValue (Tuple _ _) = True
 isValue _ = False 
 
 subst :: String -> Expr -> Expr -> Expr 
@@ -29,14 +30,16 @@ subst x s (Times t1 t2) = Times (subst x s t1) (subst x s t2)
 subst x s (Or t1 t2) = Or (subst x s t1) (subst x s t2)
 subst x s (Paren t) = Paren (subst x s t)
 subst x s (If t1 t2 t3) = If (subst x s t1) (subst x s t2) (subst x s t3)
--- Completar subst para outros termos da linguagem
+subst x s (Tuple t1 t2) = Tuple (subst x s t1) (subst x s t2)
+subst x s (Fst t) = Fst (subst x s t)
+subst x s (Snd t) = Snd (subst x s t)
+-- Completar subst para outros termos da linguage
 
 step :: Expr -> Expr 
 step (Add (Num n1) (Num n2)) = Num (n1 + n2)
 step (Add (Num n1) e2) = let e2' = step e2
                            in Add (Num n1) e2' 
 step (Add e1 e2) = Add (step e1) e2 
--- Implementar step para Times
 step (Times (Num n1) (Num n2)) = Num (n1 * n2)
 step (Times (Num n1) e2) = let e2' = step e2
                              in Times (Num n1) e2'
@@ -44,15 +47,36 @@ step (Times e1 e2) = Times (step e1) e2
 step (And BFalse e2) = BFalse 
 step (And BTrue e2) = e2 
 step (And e1 e2) = And (step e1) e2 
--- Implementar step para Or
 step (Or BTrue e2) = BTrue
 step (Or BFalse e2) = e2
 step (Or e1 e2) = Or (step e1) e2
--- Implementar step para If
 step (If BTrue t2 t3) = t2
 step (If BFalse t2 t3) = t3
 step (If e1 t2 t3) = If (step e1) t2 t3
-step (Paren e) = if isValue e then e else Paren (step e)
+
+
+
+
+step (Tuple e1 e2)
+  | not (isValue e1) = Tuple (step e1) e2
+  | not (isValue e2) = Tuple e1 (step e2)
+  | otherwise = Tuple e1 e2  -- ambos já são valores; tuple é valor
+
+
+step (Fst (Tuple v1 v2))
+  | isValue v1 && isValue v2 = v1
+step (Fst e) = Fst (step e)
+step (Snd (Tuple v1 v2))
+  | isValue v1 && isValue v2 = v2
+step (Snd e) = Snd (step e)
+
+
+
+
+
+
+
+step (Paren e) = if isValue e then e else Paren (step e) -- ?
 step (App (Lam x tp e1) e2) = if (isValue e2) then 
                                 subst x e2 e1 
                               else 

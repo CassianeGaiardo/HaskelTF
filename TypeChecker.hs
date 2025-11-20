@@ -4,7 +4,7 @@ import Lexer
 
 type Ctx = [(String, Ty)]
 
-typeof :: Ctx -> Expr -> Maybe Ty 
+typeof :: Ctx -> Expr -> Maybe Ty
 typeof ctx BTrue = Just TBool 
 typeof ctx BFalse = Just TBool 
 typeof ctx (Num n) = Just TNum 
@@ -41,7 +41,34 @@ typeof ctx (App e1 e2) = case typeof ctx e1 of
 
 typeof ctx (Paren e) = typeof ctx e -- tratamento de erro de parenteses
 
+-- Verificar se no livro que o profe passou tem outras regras!!
+typeof ctx (Tuple e1 e2) =
+  case (typeof ctx e1, typeof ctx e2) of
+    (Just t1, Just t2) -> Just (TTuple t1 t2)
+    _ -> Nothing
+
+typeof ctx (Fst e) = case typeof ctx e of
+                       Just (TTuple t1 _) -> Just t1
+                       _ -> Nothing
+
+typeof ctx (Snd e) = case typeof ctx e of
+                       Just (TTuple _ t2) -> Just t2
+                       _ -> Nothing
+
+
+
+
+
+
+
+
+
 typecheck :: Expr -> Expr 
 typecheck e = case typeof [] e of 
                 Just _ -> e 
                 _      -> error "Type error!"
+
+
+
+--att funciona ((\\x:Num -> (\\y:Num -> x*y)) 3) 4 mas não funciona (\\x:Num -> (\\y:Num -> x * y + 1)) 3 4")
+
