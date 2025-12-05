@@ -55,8 +55,6 @@ step (If BFalse t2 t3) = t3
 step (If e1 t2 t3) = If (step e1) t2 t3
 
 
-
-
 step (Tuple e1 e2)
   | not (isValue e1) = Tuple (step e1) e2
   | not (isValue e2) = Tuple e1 (step e2)

@@ -86,7 +86,3 @@ lexKw cs = case span isAlpha cs of
     ("Bool", rest)  -> TokenTBool : lexer rest
     ("Num", rest)   -> TokenTNum : lexer rest
     (idn, rest)     -> TokenIdent idn : lexer rest
-
-
-
-

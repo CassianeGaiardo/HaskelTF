@@ -1,0 +1,5 @@
+GHCi, version 9.6.7: https://www.haskell.org/ghc/  :? for help
+[1 of 2] Compiling Lexer            ( Lexer.hs, interpreted )
+[2 of 2] Compiling Parser           ( Parser.hs, interpreted )
+Ok, two modules loaded.
+Leaving GHCi.

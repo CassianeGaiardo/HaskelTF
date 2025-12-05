@@ -39,9 +39,10 @@ typeof ctx (App e1 e2) = case typeof ctx e1 of
                                                   _ -> Nothing 
                            _ -> Nothing 
 
-typeof ctx (Paren e) = typeof ctx e -- tratamento de erro de parenteses
+typeof ctx (Paren e) = typeof ctx e
 
 -- Verificar se no livro que o profe passou tem outras regras!!
+
 typeof ctx (Tuple e1 e2) =
   case (typeof ctx e1, typeof ctx e2) of
     (Just t1, Just t2) -> Just (TTuple t1 t2)
